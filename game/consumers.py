@@ -6,8 +6,9 @@ import redis
 
 
 class GameConsumer(WebsocketConsumer):
-    client = redis.Redis(host = "127.0.0.1", port = 6379)
+    client = redis.Redis(host="redis-14423.c56.east-us.azure.cloud.redislabs.com", port=14423,password='JQYiJE2Qb2tpSXClKcL2IbkKlYbPKpE1' )
     numberofuser = 3
+    channel_layer = redis.Redis(host="redis-14423.c56.east-us.azure.cloud.redislabs.com", port=14423,password='JQYiJE2Qb2tpSXClKcL2IbkKlYbPKpE1' )
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'room_%s' % self.room_name
@@ -45,7 +46,7 @@ class GameConsumer(WebsocketConsumer):
         message = text_data_json['message']
         state = text_data_json['state']
         if state =='connected':
-            count =  self.client.zcard('asgi::group:room_' + self.room_name)
+            count =  1#self.client.zcard('asgi::group:room_' + self.room_name)
             serverstate = 'open'
             context = 'connection'
             if count== self.numberofuser:
