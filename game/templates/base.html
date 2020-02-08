@@ -228,9 +228,7 @@
 
         function websocket() {
             let roomName = "{{ room_name|escapejs }}";
-
-			var loc = window.location;		
-			let  wsStart = window.location.protocol == "https:" ? "wss/" : "ws/";
+			let wsStart = window.location.protocol == "https:" ? "wss://" : "ws://";
             let webSocket = new WebSocket(
                 wsStart + window.location.host +
                 '/ws/room/' + roomName + '/');
@@ -241,7 +239,7 @@
                 let serverstate = data['serverstate'];
                 let context = data['context'];
                 let numberofuser = data['numberofuser'];
-alert(1)
+
                 IDselector('userCount').textContent = message;
                 IDselector('totalPlayer').textContent = numberofuser;
                 switch (context) {
