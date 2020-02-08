@@ -230,7 +230,7 @@
             let roomName = "{{ room_name|escapejs }}";
 
 			var loc = window.location;		
-			let  wsStart = window.location.protocol == "https:" ? "wss" : "ws";
+			let  wsStart = window.location.protocol == "https:" ? "wss/" : "ws/";
             let webSocket = new WebSocket(
                 wsStart + window.location.host +
                 '/ws/room/' + roomName + '/');
