@@ -229,12 +229,8 @@
         function websocket() {
             let roomName = "{{ room_name|escapejs }}";
 
-			var loc = window.location;
-			var wsStart = 'ws://';
-			if (loc.protocol == 'https:') {
-				 wsStart = 'wss://'
-			}			
-			
+			var loc = window.location;		
+			let  wsStart = window.location.protocol == "https:" ? "wss" : "ws";
             let webSocket = new WebSocket(
                 wsStart + window.location.host +
                 '/ws/room/' + roomName + '/');
