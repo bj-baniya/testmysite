@@ -228,8 +228,15 @@
 
         function websocket() {
             let roomName = "{{ room_name|escapejs }}";
+
+			var loc = window.location;
+			var wsStart = 'ws://';
+			if (loc.protocol == 'https:') {
+				 wsStart = 'wss://'
+			}			
+			
             let webSocket = new WebSocket(
-                'ws://' + window.location.host +
+                wsStart + window.location.host +
                 '/ws/room/' + roomName + '/');
 
             webSocket.onmessage = function (e) {
