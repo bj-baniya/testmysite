@@ -46,10 +46,7 @@ DISABLE_COLLECTSTATIC=1
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "BACKEND": "channels.layers.InMemoryChannelLayer"
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 MIDDLEWARE = [
