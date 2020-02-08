@@ -48,7 +48,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ["redis-14423.c56.east-us.azure.cloud.redislabs.com:14423"],
+            "hosts": [("redis://:JQYiJE2Qb2tpSXClKcL2IbkKlYbPKpE1@redis-14423.c56.east-us.azure.cloud.redislabs.com:14423/0")],
         },
     },
 }
