@@ -1,28 +1,27 @@
 # chat/consumers.py
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 import psycopg2
 from game.postgrehelper import PostgreHelp
 import time
 import asyncio
-from . import scheduler
-  
-class ChatConsumer(WebsocketConsumer):
+
+class AsyncChatConsumer(AsyncWebsocketConsumer):
     numberofuser = 3
-    groups = ["broadcast"]
-    def connect(self):
+    async def connect(self):
+        
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
         #self.openstate = True
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-        self.accept()
 
 
+        await self.accept()
         '''
         self.send(text_data=json.dumps({
                     'message': count
@@ -35,24 +34,25 @@ class ChatConsumer(WebsocketConsumer):
                     }
                 )
         '''
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
+       await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
     # Receive message from WebSocket
-    def receive(self, text_data):
+    async def receive(self, text_data):
+        
         text_data_json = json.loads(text_data)
         #message = text_data_json['message']
         state = text_data_json['state']
         if state =='connect':
             postgreHelp = PostgreHelp()
-            count =  postgreHelp.GetUserCount('roomname_' + self.room_name,self.numberofuser)
+            count = await  postgreHelp.GetUserCount('roomname_' + self.room_name,self.numberofuser)
             context = 'connection'
             # response to a  new connection with the number of users and
-            async_to_sync(self.channel_layer.group_send)(
+            await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'client_broadcast',
@@ -61,10 +61,12 @@ class ChatConsumer(WebsocketConsumer):
                     'numberofuser':self.numberofuser
                 }
             )
+            print(self.numberofuser)
             # if the group is full then start the quiz
             if count== self.numberofuser: # and self.openstate == True:
                 context = 'startgame'    
-                scheduler.add_new_job(self.room_group_name,context)
+                await self.Question(context,'set')
+                print(self.numberofuser)
                 #asyncio.run(self.Timer(context))
                    
                 #self.openstate = False
@@ -79,12 +81,12 @@ class ChatConsumer(WebsocketConsumer):
                                 'message': answer
             }))
    
-    def  Timer(self,context):
+    async def  Timer(self,context):
         self.countdown(10)
         self.Question(context,'set')
 
     # Receive message from room group
-    def client_broadcast(self, event):
+    async def client_broadcast(self, event):
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': event['message'],
@@ -92,7 +94,7 @@ class ChatConsumer(WebsocketConsumer):
             'numberofuser': event['numberofuser']
         }))
 
-    def client_broadcast_question(self, event):
+    async def client_broadcast_question(self, event):
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'context': event['context'],
@@ -100,18 +102,18 @@ class ChatConsumer(WebsocketConsumer):
             'options': event['options']
         }))
     
-    def Question(self, context, status):
+    async def Question(self, context, status):
         
         postgreHelp = PostgreHelp()
         #groupName ='asgi::group:chat_' + self.room_name + '_ques'
         groupName ='roomname_' + self.room_name
         que = None
         if status =='set':
-            que = postgreHelp.SetQuestion(groupName)
+            que = await postgreHelp.SetQuestion(groupName)
         else:
-            que = postgreHelp.GetQuestion(groupName)
+            que = await postgreHelp.GetQuestion(groupName)
         if  que is not None:
-            async_to_sync(self.channel_layer.group_send)(
+            await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'client_broadcast_question',
@@ -123,25 +125,13 @@ class ChatConsumer(WebsocketConsumer):
 
 
     '''
-    def broadcast(self, msg):
+    async def broadcast(self, msg):
         self.send(text_data=json.dumps({
                 'message': event['message'],
             }))
     '''
-    def countdown(self ,t):
+    async def countdown(self ,t):
         while t:
             mins, secs = divmod(t, 60)      
             time.sleep(1)
             t -= 1
-    def render_updates_group(self):
-        print("i am called")
-
-    def check_score(self,event):
-        # Receive message from room group
-        context = event['context']
-        print(context)
-        self.Question(context,'set')
-        # Send message to WebSocket
-        #self.send(text_data=json.dumps({
-        #   'message': message
-        #}))

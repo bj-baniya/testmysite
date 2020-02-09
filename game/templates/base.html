@@ -224,7 +224,7 @@
 
         function websocket() {
             let roomName = "{{ room_name|escapejs }}";
-           let wsStart = window.location.protocol == "https:" ? "wss://" : "ws://";
+            let wsStart = window.location.protocol == "https:" ? "wss://" : "ws://";
             let chatSocket = new WebSocket(
                 wsStart + window.location.host +
                 '/ws/room/' + roomName + '/');
@@ -245,7 +245,7 @@
                     case 'runninggame':
                         IDselector('time').style.display = "block";
                         IDselector('questionbox').style.display = "block";
-                        //startgame();
+                        startgame();
                         askQuestion(data);
                         break;
                 }

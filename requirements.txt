@@ -6,3 +6,4 @@ whitenoise
 Daphne
 psycopg2
 requests
+apscheduler
