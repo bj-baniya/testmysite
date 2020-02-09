@@ -7,6 +7,7 @@ class PostgreHelp:
     def __init__(self):
         #self.redisClient = redis.Redis(host="127.0.0.1", port=6379)
         self.user= 'user'
+        '''
         self.connection = psycopg2.connect(user="postgres",
                                   password="admin",
                                   host="127.0.0.1",
@@ -19,7 +20,7 @@ class PostgreHelp:
                                   host="ec2-184-72-236-57.compute-1.amazonaws.com",
                                   port="5432",
                                   database="dauao6n2jna0eu")  
-        '''
+        
     def SetQuestion(self, groupname):
         question = ''
         answers= ''
