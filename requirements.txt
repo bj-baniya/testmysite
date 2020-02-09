@@ -4,3 +4,4 @@ channels==2.4.0
 django-redis-cache
 whitenoise
 Daphne
+psycopg2
