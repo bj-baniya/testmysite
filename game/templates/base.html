@@ -147,7 +147,7 @@
 </head>
 
 <body>
-    <div class="container mt-4">
+    <div class="container mt-4" id="roomdetail">
         <div class="row">
             <div class="col-sm">
                 Maximum number of player: <span id="totalPlayer">0</span>
@@ -165,10 +165,25 @@
             </div>
         </div>
     </div>
+    <section class="call-to-action" id="rooomfull" style="display: none;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-sm-8 text-right m-text-center">
+                    <h1>Sorry the room is fulled and game is going on </h1>
+                </div>
+                <div class="col-md-4 col-sm-4 m-text-center">
+                    <a class="btn btn-white">Go to other room</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class='container' id="btnLoogut">
+        <button type="button" class="btn btn-danger">Logout</button>
+    </div>
     <div class='container' id="questionbox" style="display: none;">
         <div class="privew">
             <div class="questionsBox">
-                <div class="questions" id="questions">                   
+                <div class="questions" id="questions">
                 </div>
                 <ul class="answerList">
                     <li>
@@ -190,8 +205,8 @@
                     <li>
                         <label>
                             <input type="radio" name="answerGroup" value="3" id="answerGroup_3">
-                            <span class= "options"></span>
-                            </label>
+                            <span class="options"></span>
+                        </label>
                     </li>
                 </ul>
             </div>
@@ -221,6 +236,21 @@
             });
         }
 
+        function GetCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+        var userName = '';
 
         function websocket() {
             let roomName = "{{ room_name|escapejs }}";
@@ -233,8 +263,8 @@
                 let data = JSON.parse(e.data);
                 let message = data['message'];
                 let context = data['context'];
-                let numberofuser = data['numberofuser'];                
-                console.log(data);
+                let numberofuser = data['numberofuser'];
+                
                 switch (context) {
                     case 'connection':
                         IDselector('time').style.display = "none";
@@ -248,6 +278,13 @@
                         startgame();
                         askQuestion(data);
                         break;
+                    case 'rooomfull':
+                        IDselector('time').style.display = "none";
+                        IDselector('questionbox').style.display = "none";
+                        IDselector('roomdetail').style.display = "none";
+                        console.log(data);
+                        break;
+
                 }
             };
             chatSocket.onclose = function (e) {
@@ -257,7 +294,8 @@
             chatSocket.onopen = function (e) {
                 chatSocket.send(JSON.stringify({
                     'message': "connecting to server",
-                    'state': "connect"
+                    'state': "connect",
+                    'username': userName
                 }));
             };
             function startgame() {
@@ -300,12 +338,12 @@
                 let rds = document.querySelectorAll('[name="answerGroup"]');
                 for (i = 0, length = rds.length; i < length; ++i) {
                     rds[i].onclick = function () {
-                        debugger;
-                        let value = this.value;
                         this.closest('label').classList.add("choose");
+                        let  value = this.nextElementSibling.innerText;
                         send_To_Server({
                             'answer': value,
-                            'state': "answer"
+                            'state': "answer",
+                            'userName':userName
                         })
                         radioDisable(true);
                     }
@@ -314,7 +352,12 @@
             init_events();
         }
         window.onload = function () {
-            websocket();
+            userName = GetCookie("temptriviauser");
+            if (userName == "" || userName == null) {
+                window.location.pathname = '/game'; //+ roomName + '/';
+            }
+            else
+                websocket();
         };
     </script>
 </body>
