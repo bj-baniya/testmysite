@@ -7,11 +7,11 @@ class PostgreHelp:
     def __init__(self):
         #self.redisClient = redis.Redis(host="127.0.0.1", port=6379)
         self.user= 'user'    
-        self.connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
+        self.connection = psycopg2.connect(user="mmeqtzuigcrudl",
+                                  password="2f55bd846a95842e210cc3ac1585d2254479ccd33219fc5615b23aa1de07feb9",
+                                  host="ec2-184-72-236-57.compute-1.amazonaws.com",
                                   port="5432",
-                                  database="trivia")
+                                  database="dauao6n2jna0eu")  
     '''
     def GetHashData(self, hashname, key):
         return self.redisClient.hget(hashname, key)
