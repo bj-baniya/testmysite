@@ -5,3 +5,4 @@ django-redis-cache
 whitenoise
 Daphne
 psycopg2
+requests
