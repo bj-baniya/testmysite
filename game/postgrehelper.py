@@ -6,7 +6,12 @@ import psycopg2
 class PostgreHelp:
     def __init__(self):
         #self.redisClient = redis.Redis(host="127.0.0.1", port=6379)
-         self.user= 'user'    
+        self.user= 'user'    
+        self.connection = psycopg2.connect(user="postgres",
+                                  password="admin",
+                                  host="127.0.0.1",
+                                  port="5432",
+                                  database="trivia")
     '''
     def GetHashData(self, hashname, key):
         return self.redisClient.hget(hashname, key)
@@ -15,16 +20,11 @@ class PostgreHelp:
         question = ''
         answers= ''
         try:
-            print ("here i am ")
-            connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
-                                  port="5432",
-                                  database="trivia")
-            cursor = connection.cursor()
+           
+            cursor = self.connection.cursor()
             existingQuestion = "SELECT * FROM public.questions where groupname = '{}' ".format(groupname)
             cursor.execute(existingQuestion)
-            connection.commit()
+            self.connection.commit()
 
             difficulty ='easy'
             quesno = 0
@@ -53,7 +53,7 @@ class PostgreHelp:
                 updateUserNO = "UPDATE questions SET  quesno={0}, correctanswer={1}, difficulty={2}, question={3}, answers={4} WHERE groupname= '{5}'"
                 updateUserNO = updateUserNO.format(quesno,correct_answer,difficulty,question,answers,groupname)
                 cursor.execute(updateUserNO)
-                connection.commit()
+                self.connection.commit()
             '''
             else:
                 postgres_insert_query = "INSERT INTO public.questions(groupname, no, correctanswer, difficulty, question, answers) VALUES ( {0},{1},{2},{3},{4},{5}}"
@@ -64,25 +64,21 @@ class PostgreHelp:
             print(quesno)
             print(question, answers)
         except (Exception, psycopg2.Error) as error :
-            if(connection):
+            if(self.connection):
                 print(error)
         finally:
         #closing database connection.
-            if(connection):
+            if(self.connection):
                 cursor.close()
-                connection.close()
+                self.connection.close()
                 print("PostgreSQL connection is closed")
         return (question, answers)
     
     def GetQuestion(self, groupname):
-        connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
-                                  port="5432",
-                                  database="trivia")
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         existingQuestion = 'SELECT * FROM public.questions where groupname = %s '
         cursor.execute(existingQuestion,groupname)
+        self.connection.commit()
         question =None
         answers = None
         if cursor.rowcount > 0:
@@ -92,15 +88,11 @@ class PostgreHelp:
         return (question, answers)
 
     def GetUserCount(self, groupname, maxuser):
-        connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
-                                  port="5432",
-                                  database="trivia")
-        cursor = connection.cursor()
+    
+        cursor = self.connection.cursor()
         existingQuestion = "SELECT * FROM public.questions where groupname = '{0}' ".format(groupname)
         cursor.execute(existingQuestion)  
-        connection.commit()      
+        self.connection.commit()      
         users = 0
         #the group already contains the user
         if cursor.rowcount > 0:
@@ -119,27 +111,18 @@ class PostgreHelp:
         return  users
 
     def UpdateUserCount(self, groupname, users):
-        connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
-                                  port="5432",
-                                  database="trivia")
+       
         users += 1
         updateUserCount = "UPDATE questions SET  userno={0}  WHERE groupname= '{1}'".format(users, groupname)
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         cursor.execute(updateUserCount)
-        connection.commit()
+        self.connection.commit()
         return users
 
     def FirstUser(self, groupname):
-        connection = psycopg2.connect(user="postgres",
-                                  password="admin",
-                                  host="127.0.0.1",
-                                  port="5432",
-                                  database="trivia")
         query_firstperson = "INSERT INTO public.questions(groupname, userno, correctanswer, difficulty, question,quesno) VALUES ( '{}',{},'{}','{}','{}',{})"
         query_firstperson = query_firstperson.format(groupname,1,'','easy','',0)
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         cursor.execute(query_firstperson)
-        connection.commit()
+        self.connection.commit()
         return 1
